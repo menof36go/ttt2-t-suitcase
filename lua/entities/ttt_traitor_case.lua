@@ -15,16 +15,16 @@ function ENT:Initialize()
 	end
 end
 
-function ENT:Draw() 
+function ENT:Draw()
 	if IsValid(self) then
 		self:DrawModel()
 		local pos = self:GetPos() + Vector(0, 0, 20)
 		local ang = Angle(0, LocalPlayer():GetAngles().y - 90, 90)
 		surface.SetFont("Default")
 		local width = surface.GetTextSize("What could be in here?") + 120
-		
+
 		cam.Start3D2D(pos, ang, 0.3)
-		
+
 		draw.RoundedBox( 5, -width / 2 , -5, width, 15, Color(10, 90, 140, 100) )
 		draw.SimpleText("Press [E] to receive your Item!", "ChatFont", 0, -5, Color(255,255,255,255), TEXT_ALIGN_CENTER)
 		cam.End3D2D()
@@ -40,7 +40,7 @@ function ENT:Use(ply)
 		local maxCredits = GetConVar("ttt_tc_max_credits"):GetInt()
 
 		for _, v in pairs(weapons.GetList()) do
-			if table.HasValue(v.CanBuy, ROLE_TRAITOR) then
+			if table.HasValue(v.CanBuy, self.Role or ROLE_TRAITOR) then
 				if  ignoreNotBuyable or !(v.notBuyable) then
 					if v.credits and v.credits <= maxCredits then
 						table.insert(t_weapons, v.ClassName)
@@ -53,8 +53,8 @@ function ENT:Use(ply)
 			weapon = math.random(1,value)
 		end
 
-		if not IsFirstTimePredicted() then 
-			return 
+		if not IsFirstTimePredicted() then
+			return
 		end
 
 		self.NextUse = CurTime() + 2
@@ -62,7 +62,7 @@ function ENT:Use(ply)
 		local effect = EffectData()
 		effect:SetOrigin(self:GetPos() + Vector(0,0, 10))
 		effect:SetStart(self:GetPos() + Vector(0,0, 10))
-	
+
 		util.Effect("cball_explode", effect, true, true )
 
 		if value > 0 then
@@ -81,12 +81,12 @@ function ENT:SpawnWeapon(wp)
 		local suitcase = ents.Create(wp)
 		suitcase:SetPos(self:GetPos())
 		suitcase:Spawn()
-		
+
 		local phys = suitcase:GetPhysicsObject()
 		if IsValid(phys) then
-			
+
 			phys:SetMass(200)
-		end 
+		end
 		self.ENT = suitcase
 	end
 end

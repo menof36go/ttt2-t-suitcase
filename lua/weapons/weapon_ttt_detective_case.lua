@@ -5,14 +5,14 @@ end
 SWEP.HoldType = "normal"
 
 if CLIENT then
-   SWEP.PrintName = "The T-Suitcase"
+   SWEP.PrintName = "The D-Suitcase"
    SWEP.Slot = 6
 
    SWEP.ViewModelFOV = 10
 
    SWEP.EquipMenuData = {
       type = "item_weapon",
-      desc = "Receive a random Traitor Item!"
+      desc = "Receive a random Detective Item!"
    };
 
    SWEP.Icon = "vgui/ttt/suitcase"
@@ -35,7 +35,7 @@ SWEP.Secondary.Delay = 1.0
 
 -- This is special equipment
 SWEP.Kind = WEAPON_EQUIP
-SWEP.CanBuy = {ROLE_DETECTIVE} -- only detectives can buy
+SWEP.CanBuy = {ROLE_TRAITOR}
 SWEP.LimitedStock = true -- only buyable once
 SWEP.WeaponID = AMMO_CUBE
 SWEP.AllowDrop = true
@@ -65,7 +65,7 @@ function SWEP:CreateSuitcase()
 	if SERVER then
 		local ply = self.Owner
 		local suitcase = ents.Create("ttt_traitor_case")
-		suitcase.Role = ROLE_TRAITOR
+		suitcase.Role = ROLE_DETECTIVE
 		if IsValid(suitcase) and IsValid(ply) then
 			local vsrc = ply:GetShootPos()
 			local vang = ply:GetAimVector()
