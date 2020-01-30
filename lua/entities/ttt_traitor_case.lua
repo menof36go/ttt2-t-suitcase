@@ -31,62 +31,88 @@ function ENT:Draw()
 	end
 end
 
+function ENT:PickAndGiveRandomEquipFromTable(ply, t_equip, try)
+	local class = nil
+	if #t_equip > 0 then
+		class = t_equip[math.random(1,#t_equip)]
+	end
+
+	if not class then return end
+
+	local isItem = items.IsItem(class)
+
+	local equip = isItem and items.GetStored(class) or weapons.GetStored(class)
+
+	if not equip then return end
+
+	if isItem and ply:HasBought(class) or not isItem and not ply:CanCarryWeapon(equip) then
+		if try < 8 then
+			self:PickAndGiveRandomEquipFromTable(ply, t_equip, try + 1)
+			return
+		else
+			LANG.Msg(ply, "Sorry, please try again.", nil, MSG_MSTACK_ROLE)
+			self:EmitSound("buttons/button9.wav",75, 150)
+			return
+		end
+	end
+
+	local effect = EffectData()
+	effect:SetOrigin(self:GetPos() + Vector(0,0, 10))
+	effect:SetStart(self:GetPos() + Vector(0,0, 10))
+
+	util.Effect("cball_explode", effect, true, true )
+
+	sound.Play("ambient/levels/labs/electric_explosion3.wav", self:GetPos())
+
+	if isItem then
+		local item = ply:GiveEquipmentItem(class)
+		if isfunction(item.Bought) then
+			item:Bought(ply)
+		end
+	else
+		ply:GiveEquipmentWeapon(class, function(ply, cls, wep)
+			if isfunction(wep.WasBought) then
+				wep:WasBought(ply)
+			end
+		end)
+	end
+
+	self:Remove()
+end
+
 function ENT:Use(ply)
 	if (self.NextUse < CurTime()) then
-		local t_weapons = {}
-		local value = 0
-
-		local ignoreNotBuyable = GetConVar("ttt_tc_ignore_not_buyable"):GetBool()
-		local maxCredits = GetConVar("ttt_tc_max_credits"):GetInt()
-
-		for _, v in pairs(weapons.GetList()) do
-			if table.HasValue(v.CanBuy, self.Role or ROLE_TRAITOR) then
-				if  ignoreNotBuyable or !(v.notBuyable) then
-					if v.credits and v.credits <= maxCredits then
-						table.insert(t_weapons, v.ClassName)
-						value = value + 1
-					end
-				end
-			end
-		end
-		if value > 0 then
-			weapon = math.random(1,value)
-		end
-
 		if not IsFirstTimePredicted() then
 			return
 		end
 
 		self.NextUse = CurTime() + 2
 
-		local effect = EffectData()
-		effect:SetOrigin(self:GetPos() + Vector(0,0, 10))
-		effect:SetStart(self:GetPos() + Vector(0,0, 10))
+		local t_equip = {}
 
-		util.Effect("cball_explode", effect, true, true )
+		local ignoreNotBuyable = GetConVar("ttt_tc_ignore_not_buyable"):GetBool()
+		local maxCredits = GetConVar("ttt_tc_max_credits"):GetInt()
 
-		if value > 0 then
-			self:SpawnWeapon(t_weapons[weapon])
+		for _, v in pairs(weapons.GetList()) do
+			if table.HasValue(v.CanBuy, self.Role or ROLE_TRAITOR) then
+				if ignoreNotBuyable or !(v.notBuyable) then
+					if v.credits and v.credits <= maxCredits then
+						table.insert(t_equip, v.ClassName)
+					end
+				end
+			end
 		end
 
-		sound.Play("ambient/levels/labs/electric_explosion3.wav", self:GetPos())
-
-		self:Remove()
-	end
-end
-
-function ENT:SpawnWeapon(wp)
-	if SERVER then
-		local ply = self.Owner
-		local suitcase = ents.Create(wp)
-		suitcase:SetPos(self:GetPos())
-		suitcase:Spawn()
-
-		local phys = suitcase:GetPhysicsObject()
-		if IsValid(phys) then
-
-			phys:SetMass(200)
+		for _, v in pairs(items.GetList()) do
+			if table.HasValue(v.CanBuy, self.Role or ROLE_TRAITOR) then
+				if ignoreNotBuyable or !(v.notBuyable) then
+					if v.credits and v.credits <= maxCredits then
+						table.insert(t_equip, v.ClassName)
+					end
+				end
+			end
 		end
-		self.ENT = suitcase
+
+		self:PickAndGiveRandomEquipFromTable(ply, t_equip, 0)
 	end
 end

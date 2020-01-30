@@ -15,7 +15,7 @@ if CLIENT then
       desc = "Receive a random Traitor Item!"
    };
 
-   SWEP.Icon = "vgui/ttt/suitcase"
+   SWEP.Icon = "vgui/ttt/icon_suitcase"
 end
 
 SWEP.Base = "weapon_tttbase"
