@@ -63,7 +63,7 @@ SWEP.ENT = nil
 
 function SWEP:CreateSuitcase()
 	if SERVER then
-		local ply = self.Owner
+		local ply = self:GetOwner()
 		local suitcase = ents.Create("ttt_traitor_case")
 		suitcase.Role = ROLE_TRAITOR
 		if IsValid(suitcase) and IsValid(ply) then
@@ -95,7 +95,7 @@ function SWEP:SecondaryAttack()
 end
 
 function SWEP:OnRemove()
-   	if CLIENT and IsValid(self.Owner) and self.Owner == LocalPlayer() and self.Owner:Alive() then
+   	if CLIENT and IsValid(self:GetOwner()) and self:GetOwner() == LocalPlayer() and self:GetOwner():Alive() then
       	RunConsoleCommand("lastinv")
    	end
 end
