@@ -46,7 +46,7 @@ function SWEP:PrimaryAttack()
 		return
 	end
 
-	self.Weapon:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
+	self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 	self:CreateSuitcase()
 	self:TakePrimaryAmmo (1)
 
