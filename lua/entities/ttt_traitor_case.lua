@@ -11,7 +11,7 @@ function ENT:Initialize()
 	self:SetCollisionGroup(COLLISION_GROUP_NONE)
 
 	if SERVER then
-		self.Entity:NextThink(CurTime() + 1.5)
+		self:NextThink(CurTime() + 1.5)
 	end
 end
 
